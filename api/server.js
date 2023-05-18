@@ -40,6 +40,29 @@ app.get('/books', (req, res) => {
     });
   });
   
+  app.get('/author', (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        console.error('Error connecting to the database:', err);
+        // res.set('Access-Control-Allow-Origin', '*');
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+  
+      const query = 'SELECT authors FROM books';
+      connection.query(query, (err, results) => {
+        connection.release(); // Release the connection back to the pool
+  
+        if (err) {
+          console.error('Error executing query:', err);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+  
+        res.json(results);
+      });
+    });
+  });
   // Start the server
   app.listen(port, () => {
     console.log(`API server is running on http://localhost:${port}`);
